@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Dict, Any
 
 
 class Node:
-  def __init__ (self,*, feature: int, threshold: float = None, left: 'Node' = None, right: 'Node' = None, value: float = None):
+  def __init__ (self,*, feature: int = None, threshold: float = None, left: 'Node' = None, right: 'Node' = None, value: float = None):
     self.feature = feature
     self.threshold = threshold
     self.left = left
@@ -28,7 +28,7 @@ class DecisionTreeRegressor:
     self.min_impurity_decrease = min_impurity_decrease
     self.root = None
     
-  def _mse(y):
+  def _mse(self, y):
     if y.size == 0:
       return 0
     else:
@@ -76,23 +76,28 @@ class DecisionTreeRegressor:
       
       
   def _build(self, X, y, depth):
+    # kalau tidak ada sample
+    if y.size == 0:
+        return Node(value=0.0)
+
     # kondisi berhenti
     if (depth >= self.max_depth) or (y.size < self.min_samples_split):
-      return Node(value=float(y.mean()))
+        return Node(value=float(y.mean()))
 
     feat, thr, gain = self._best_split(X, y)
     if feat is None or gain < self.min_impurity_decrease:
-      return Node(value=float(y.mean()))
+        return Node(value=float(y.mean()))
 
     left_mask = X[:, feat] <= thr
     right_mask = ~left_mask
 
-    # guard min_samples_leaf
+    # guard min_samples_leaf atau split jelek
     if left_mask.sum() < self.min_samples_leaf or right_mask.sum() < self.min_samples_leaf:
-      return Node(value=float(y.mean()))
+        return Node(value=float(y.mean()))
 
     left = self._build(X[left_mask], y[left_mask], depth+1)
     right = self._build(X[right_mask], y[right_mask], depth+1)
+
     return Node(feature=feat, threshold=float(thr), left=left, right=right)
 
   def fit (self, X, y):
@@ -122,7 +127,7 @@ class DecisionTreeRegressor:
       node = self.root
     lines = []
     indent = "  " * depth
-    if node.is_leaf:
+    if node.is_leaf():
       lines.append(f"{indent}-> value = {node.value:.6f}")
     else:
       fname = f"x[{node.feature}]" if feature_names is None else feature_names[node.feature]

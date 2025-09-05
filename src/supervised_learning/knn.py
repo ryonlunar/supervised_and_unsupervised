@@ -34,8 +34,8 @@ class KNN:
     distances = [self.distance_function(x, x_train) for x_train in self.X_train]
     k_nearest_indices = np.argsort(distances)[:self.k]
     k_nearest_labels = self.y_train[k_nearest_indices]
-    most_common_label = pd.Series(k_nearest_labels).mode()[0] # katanya agak lama
-    return most_common_label
+    prediction = np.mean(k_nearest_labels)
+    return prediction
 
   def _euclidean_distance(self, a, b):
     return np.sqrt(np.sum((a - b) ** 2))

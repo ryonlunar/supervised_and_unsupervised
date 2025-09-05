@@ -40,7 +40,7 @@ class DBSCAN:
           # Buat cluster baru
           self._expand_cluster(X, i, neighbors, cluster_id, visited)
           cluster_id += 1
-    return self
+    return self.labels_
 
   def _region_query(self, X, idx):
     neighbors = []

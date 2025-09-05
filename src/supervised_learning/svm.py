@@ -80,8 +80,8 @@ class SVM:
                 continue
 
             # eta
-            eta = 2.0 * K[i, j] - K[i, i] - K[j, j]
-            if eta >= 0:
+            eta = K[i, i] + K[j, j] - 2.0 * K[i, j]
+            if eta <= 0:
                 continue
 
             # update aj
